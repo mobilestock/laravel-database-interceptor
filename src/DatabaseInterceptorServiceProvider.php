@@ -15,7 +15,9 @@ class DatabaseInterceptorServiceProvider extends DatabaseServiceProvider
 {
     protected function registerConnectionServices(): void
     {
-        $this->app->alias(ConnectionFactory::class, 'db.factory');
+        $this->app->singleton('db.factory', function ($app) {
+            return new ConnectionFactory($app);
+        });
 
         $this->app->singleton('db', function ($app): DatabaseManager {
             return new DatabaseManager($app, $app['db.factory']);
@@ -32,7 +34,10 @@ class DatabaseInterceptorServiceProvider extends DatabaseServiceProvider
         $this->app->singleton('db.transactions', function (): DatabaseTransactionsManager {
             return new DatabaseTransactionsManager();
         });
+    }
 
+    public function boot(): void
+    {
         Connection::resolverFor('mysql', function (
             $connection,
             string $database,
