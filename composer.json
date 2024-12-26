@@ -1,0 +1,33 @@
+{
+  "name": "mobilestock/laravel-database-interceptor",
+  "description": "Laravel Database Interceptor is a library that enables you to intercept database queries managed by PDO and transform the returned values into custom types. It uses Illuminate library abstractions to implement new PDO facade methods like selectOneColumn and selectColumns. It is fully compatible with MySQL/MariaDB. Other databases are not supported.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "MobileStock",
+      "email": "fabio@mobilestock.com.br"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MobileStock\\LaravelDatabaseInterceptor\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.3",
+    "illuminate/database": "^11.0",
+    "illuminate/pipeline": "^11.0",
+    "illuminate/support": "^11.0",
+    "illuminate/contracts": "^11.0",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.5"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
