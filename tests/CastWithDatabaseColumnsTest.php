@@ -176,7 +176,7 @@ it('should check non associative array to be a list', function () {
         'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
     ];
 
-    $next = fn() => [['my_array' => [['foo'], ['bar']]]];
+    $next = fn() => [['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]];
 
     $result = $this->middleware->handle($pdoData, $next);
 
