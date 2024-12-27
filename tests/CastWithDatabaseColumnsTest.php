@@ -130,12 +130,6 @@ it('should fails to decode JSON exceeding 803 depths layers limit', function () 
     expect($result)->toBe([['field' => $deepJson]]);
 });
 
-// fetch all - bool - nullable - sem sufixo _bool
-// fetch all - bool - nullable - com sufixo _bool
-// fetch all - bool - nullable - com sufixo _bool
-// fetch all json - bool - com sufixo _bool
-// fetch all json - bool - sem sufixo _bool
-
 it('should cast boolean correctly with custom prefix and not_null flag', function () {
     $pdoData = [
         'stmt_method' => 'fetchAll',
@@ -212,3 +206,119 @@ it('should cast correctly with statics internal cast configuration a deep json o
         ],
     ]);
 });
+
+dataset('nativeTypes', [
+    'LONG' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'int_id',
+                'native_type' => 'LONG',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['int_id' => '42']],
+        'expected' => [['id' => 42]],
+    ],
+    'LONGLONG' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'int_id',
+                'native_type' => 'LONGLONG',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['int_id' => '42']],
+        'expected' => [['id' => 42]],
+    ],
+    'SHORT' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'int_id',
+                'native_type' => 'SHORT',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['int_id' => '42']],
+        'expected' => [['id' => 42]],
+    ],
+    'TINY' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'int_id',
+                'native_type' => 'TINY',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['int_id' => '42']],
+        'expected' => [['id' => 42]],
+    ],
+    'INT24' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'int_id',
+                'native_type' => 'INT24',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['int_id' => '42']],
+        'expected' => [['id' => 42]],
+    ],
+    'YEAR' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'year',
+                'native_type' => 'YEAR',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['year' => '2021']],
+        'expected' => [['year' => 2021]],
+    ],
+    'FLOAT' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'float_value',
+                'native_type' => 'FLOAT',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['float_value' => 3.14]],
+        'expected' => [['value' => 3.14]],
+    ],
+    'DOUBLE' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'float_value',
+                'native_type' => 'DOUBLE',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['float_value' => 3.14]],
+        'expected' => [['value' => 3.14]],
+    ],
+    'NEWDECIMAL' => [
+        'pdoData' => [
+            'stmt_method' => 'fetchAll',
+            'stmt_call' => fn() => [
+                'name' => 'float_value',
+                'native_type' => 'NEWDECIMAL',
+                'flags' => ['not_null'],
+            ],
+        ],
+        'next' => [['float_value' => 3.14]],
+        'expected' => [['value' => 3.14]],
+    ],
+]);
+
+it('should correctly handle native type', function (array $pdoData, array $next, array $expected) {
+    $result = $this->middleware->handle($pdoData, fn() => $next);
+    expect($result)->toBe($expected);
+})->with('nativeTypes');
