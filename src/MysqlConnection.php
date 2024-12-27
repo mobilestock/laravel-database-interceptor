@@ -7,13 +7,13 @@ use Exception;
 use Illuminate\Database\Events\StatementPrepared;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use PDO;
 use ReflectionClass;
 use RuntimeException;
 
 class MysqlConnection extends \Illuminate\Database\MySqlConnection
 {
+    // @issue:
     protected function runQueryCallback($query, $bindings, Closure $callback)
     {
         // To execute the statement, we'll simply call the callback, which will actually
@@ -80,10 +80,10 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
     protected function changePdoFetchModeToFetchColumn(): void
     {
         $listener = function (StatementPrepared $event) use (&$listener): bool {
-            Event::forget(StatementPrepared::class, $listener);
-            return $event->statement->setFetchMode(PDO::FETCH_COLUMN, 0);
+            $this->getEventDispatcher()->forget(StatementPrepared::class, $listener);
+            return $event->statement->setFetchMode(PDO::FETCH_COLUMN, 0) ?? false;
         };
 
-        Event::listen(StatementPrepared::class, $listener);
+        $this->getEventDispatcher()->listen(StatementPrepared::class, $listener);
     }
 }
