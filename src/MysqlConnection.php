@@ -33,7 +33,7 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
             $reflectionClass = new ReflectionClass($e);
 
             if ($reflectionClass->isInternal()) {
-                throw new QueryException('mysql', $query, $this->prepareBindings($bindings), $e);
+                throw new QueryException($this->getName(), $query, $this->prepareBindings($bindings), $e);
             }
 
             throw $e;

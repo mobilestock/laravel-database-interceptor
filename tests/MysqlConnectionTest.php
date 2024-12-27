@@ -17,8 +17,8 @@ it('should throw a Laravel error in case of syntax error', function () {
 
     $connection = new MysqlConnection($pdoMock);
 
-    expect(fn() => $connection->select('INVALID SQL'))->toThrow(QueryException::class);
-});
+    $connection->select('INVALID SQL');
+})->throws(QueryException::class);
 
 it('should throw a custom exception', function () {
     $customException = get_class(new class extends Exception {});
