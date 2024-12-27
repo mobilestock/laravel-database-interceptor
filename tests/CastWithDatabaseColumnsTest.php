@@ -6,7 +6,7 @@ beforeEach(function () {
     $this->middleware = new CastWithDatabaseColumns();
 });
 
-// // TODO: Utilizar data sets para evitar código duplicado: https://pestphp.com/docs/datasets
+// TODO: Utilizar data sets para evitar código duplicado: https://pestphp.com/docs/datasets
 it('should repass to next middleware if non-fetchAll statement was called', function () {
     $pdoData = [
         'stmt_method' => 'fetch',
@@ -20,11 +20,9 @@ it('should repass to next middleware if non-fetchAll statement was called', func
 it(
     'should cast bool values correctly by injecting a custom prefix when bool is already a static internal cast configuration',
     function () {
-        $stmtCallMock = fn() => ['name' => 'bool_isActive'];
-
         $pdoData = [
             'stmt_method' => 'fetchAll',
-            'stmt_call' => $stmtCallMock,
+            'stmt_call' => fn() => ['name' => 'bool_isActive'],
         ];
 
         $next = fn() => [1, 0, 1];
@@ -36,11 +34,9 @@ it(
 );
 
 it('should correctly cast internal static prefixes with not_null flag', function () {
-    $stmtCallMock = fn() => ['flag' => ['not_null']];
-
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => ['flag' => ['not_null']],
     ];
 
     $next = fn() => [
@@ -67,11 +63,9 @@ it('should correctly cast internal static prefixes with not_null flag', function
 });
 
 it('should correctly cast internal static prefixes with nullable flag', function () {
-    $stmtCallMock = fn() => ['flag' => ['nullable']];
-
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => ['flag' => ['nullable']],
     ];
 
     $next = fn() => [
@@ -98,18 +92,16 @@ it('should correctly cast internal static prefixes with nullable flag', function
 });
 
 it('should handles JSON with 40 depths layers correctly', function () {
-    $stmtCallMock = fn() => [
-        'name' => 'field_json',
-        'native_type' => 'VAR_STRING',
-        'flags' => ['not_null'],
-    ];
-
     $deepJson = str_repeat('{"item":', 40) . '"value"' . str_repeat('}', 40);
     $expectedDecodedJson = json_decode($deepJson, true);
 
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => [
+            'name' => 'field_json',
+            'native_type' => 'VAR_STRING',
+            'flags' => ['not_null'],
+        ],
     ];
 
     $next = fn() => [['field_json' => $deepJson]];
@@ -120,17 +112,15 @@ it('should handles JSON with 40 depths layers correctly', function () {
 });
 
 it('should fails to decode JSON exceeding 803 depths layers limit', function () {
-    $stmtCallMock = fn() => [
-        'name' => 'field_json',
-        'native_type' => 'VAR_STRING',
-        'flags' => ['not_null'],
-    ];
-
     $deepJson = '{"item":' . str_repeat('{"item":', 801) . '"value"' . str_repeat('}', 801) . '}';
 
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => [
+            'name' => 'field_json',
+            'native_type' => 'VAR_STRING',
+            'flags' => ['not_null'],
+        ],
     ];
 
     $next = fn() => [['field_json' => $deepJson]];
@@ -147,15 +137,13 @@ it('should fails to decode JSON exceeding 803 depths layers limit', function () 
 // fetch all json - bool - sem sufixo _bool
 
 it('should cast boolean correctly with custom prefix and not_null flag', function () {
-    $stmtCallMock = fn() => [
-        'name' => 'is_active',
-        'native_type' => 'TINY',
-        'flags' => ['not_null'],
-    ];
-
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => [
+            'name' => 'is_active',
+            'native_type' => 'TINY',
+            'flags' => ['not_null'],
+        ],
     ];
 
     $next = fn() => [['bool_isActive' => '1'], ['is_active' => '0']];
@@ -166,15 +154,13 @@ it('should cast boolean correctly with custom prefix and not_null flag', functio
 });
 
 it('should cast boolean correctly with custom prefix and nullable flag', function () {
-    $stmtCallMock = fn() => [
-        'name' => 'is_active',
-        'native_type' => 'TINY',
-        'flags' => ['nullable'],
-    ];
-
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => [
+            'name' => 'is_active',
+            'native_type' => 'TINY',
+            'flags' => ['nullable'],
+        ],
     ];
 
     $next = fn() => [['bool_isActive' => '1'], ['is_active' => null]];
@@ -184,19 +170,30 @@ it('should cast boolean correctly with custom prefix and nullable flag', functio
     expect($result)->toBe([['bool_isActive' => true], ['is_active' => false]]);
 });
 
-it('should cast correctly with statics internal cast configuration a deep json object', function () {
-    $stmtCallMock = fn() => [
-        'name' => 'field_json',
-        'native_type' => 'VAR_STRING',
-        'flags' => ['not_null'],
+it('should check non associative array to be a list', function () {
+    $pdoData = [
+        'stmt_method' => 'fetchAll',
+        'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
     ];
 
+    $next = fn() => [['my_array' => [['foo'], ['bar']]]];
+
+    $result = $this->middleware->handle($pdoData, $next);
+
+    expect($result[0])->toHaveKey('my_array');
+});
+
+it('should cast correctly with statics internal cast configuration a deep json object', function () {
     $deepJson =
         '{"firstBody": {"internalFirstBody": {"bool_isActive": 1, "int_id": "42"}}, "secondBody": {"float_value": "3.14", "var_string": "Hello"}, "thirdBody": {"field_json": "{\"isActive\": true, \"id\": 42, \"value\": 3.14, \"var\": \"Hello\"}"}}';
 
     $pdoData = [
         'stmt_method' => 'fetchAll',
-        'stmt_call' => $stmtCallMock,
+        'stmt_call' => fn() => [
+            'name' => 'field_json',
+            'native_type' => 'VAR_STRING',
+            'flags' => ['not_null'],
+        ],
     ];
 
     $next = fn() => [['field_json' => $deepJson]];
