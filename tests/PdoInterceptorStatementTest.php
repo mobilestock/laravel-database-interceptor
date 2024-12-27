@@ -37,3 +37,48 @@ it('should provide correct data from PDO', function () {
 
     $pdoCastStatement->fetchAll();
 });
+
+it('should call execute with correct pipeline data', function () {
+    $stmtParentMock = new class {
+        public function execute(): bool
+        {
+            return true;
+        }
+    };
+
+    $pipeline = new Pipeline();
+    $pipeline->through(function (array $data, Closure $next) {
+        expect($data['stmt_method'])->toBe('execute');
+
+        return $next($data);
+    });
+
+    $pdoCastStatement = getStmt($pipeline);
+    $pdoCastStatement->parent = $stmtParentMock;
+
+    $result = $pdoCastStatement->execute(['foo' => 'bar']);
+
+    expect($result)->toBeTrue();
+});
+
+it('should allow pipeline to modify nextRowset() result', function () {
+    $stmtParentMock = new class {
+        public function nextRowset(): bool
+        {
+            return true;
+        }
+    };
+
+    $pipeline = new Pipeline();
+    $pipeline->through(function (array $data, Closure $next) {
+        $originalResult = $next($data);
+        return false;
+    });
+
+    $pdoCastStatement = getStmt($pipeline);
+    $pdoCastStatement->parent = $stmtParentMock;
+
+    $result = $pdoCastStatement->nextRowset();
+
+    expect($result)->toBeFalse();
+});
