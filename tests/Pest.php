@@ -1,6 +1,9 @@
 <?php
 
 use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
+use Tests\TestCase;
+
+uses(TestCase::class)->in(__DIR__);
 
 class PdoInterceptorStatementWithParent extends PdoInterceptorStatement
 {

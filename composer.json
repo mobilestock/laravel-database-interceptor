@@ -11,7 +11,8 @@
   ],
   "autoload": {
     "psr-4": {
-      "MobileStock\\LaravelDatabaseInterceptor\\": "src/"
+      "MobileStock\\LaravelDatabaseInterceptor\\": "src/",
+      "Tests\\": "tests/"
     }
   },
   "require": {
@@ -26,7 +27,8 @@
     "pestphp/pest": "^3.5",
     "mockery/mockery": "^1.6",
     "illuminate/container": "^11.0",
-    "illuminate/config": "^11.0"
+    "illuminate/config": "^11.0",
+    "orchestra/testbench": "^9.9"
   },
   "config": {
     "allow-plugins": {
