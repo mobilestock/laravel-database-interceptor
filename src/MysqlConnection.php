@@ -13,7 +13,7 @@ use RuntimeException;
 
 class MysqlConnection extends \Illuminate\Database\MySqlConnection
 {
-    // @issue:
+    // @issue:https://github.com/mobilestock/backend/issues/726
     protected function runQueryCallback($query, $bindings, Closure $callback)
     {
         // To execute the statement, we'll simply call the callback, which will actually
