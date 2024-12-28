@@ -6,7 +6,6 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Facade;
 use MobileStock\LaravelDatabaseInterceptor\ConnectionFactory;
 use Mobilestock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
-use PDO;
 
 if (!function_exists('app')) {
     function app($abstract = null)
