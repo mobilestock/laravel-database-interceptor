@@ -23,7 +23,10 @@
     "ext-pdo": "*"
   },
   "require-dev": {
-    "pestphp/pest": "^3.5"
+    "pestphp/pest": "^3.5",
+    "mockery/mockery": "^1.6",
+    "illuminate/container": "^11.0",
+    "illuminate/config": "^11.0"
   },
   "config": {
     "allow-plugins": {

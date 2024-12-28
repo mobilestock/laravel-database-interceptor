@@ -18,11 +18,11 @@ if (!function_exists('app')) {
     }
 }
 
-beforeEach(function () {
-    $this->container = new Container();
-    Container::setInstance($this->container);
+it('should test the integration with database for real connection in memory', function () {
+    $container = new Container();
+    Container::setInstance($container);
 
-    $this->container->bind(Pipeline::class, function ($app) {
+    $container->bind(Pipeline::class, function ($app) {
         return new Pipeline($app);
     });
 
@@ -31,13 +31,11 @@ beforeEach(function () {
             'middlewares' => [],
         ],
     ]);
-    $this->container->instance('config', $configRepository);
+    $container->instance('config', $configRepository);
 
-    Facade::setFacadeApplication($this->container);
-});
+    Facade::setFacadeApplication($container);
 
-it('should test the integration with database for real connection in memory', function () {
-    $factory = new ConnectionFactory($this->container);
+    $factory = new ConnectionFactory($container);
 
     $reflection = new ReflectionClass(ConnectionFactory::class);
     $method = $reflection->getMethod('createPdoResolver');
