@@ -1,14 +1,18 @@
 <?php
 
 use Illuminate\Pipeline\Pipeline;
-use Mobilestock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
+use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
 
 function createPdoCastStatement(object $stmtParentMock, Closure $through): PdoInterceptorStatement
 {
     $pipeline = new Pipeline();
     $pipeline->through($through);
 
-    $pdoCastStatement = getStmt($pipeline);
+    $reflectionClass = new ReflectionClass(PdoInterceptorStatement::class);
+    $method = $reflectionClass->getConstructor();
+    $method->setAccessible(true);
+    $method->invoke($pdoCastStatement = $reflectionClass->newInstanceWithoutConstructor(), $pipeline);
+
     $reflectionClass = new ReflectionClass($pdoCastStatement);
     $property = $reflectionClass->getProperty('parent');
     $property->setAccessible(true);
@@ -28,41 +32,6 @@ it('should execute the pipeline', function () {
     expect($pdoCastStatement->fetchAll())->toBe(['test']);
 });
 
-it('should provide correct data from PDO', function () {
-    $stmtParentMock = new class {
-        public function fetchAll(): array
-        {
-            return ['test'];
-        }
-    };
-
-    $pdoCastStatement = createPdoCastStatement($stmtParentMock, function (array $data, Closure $next) {
-        expect($data['stmt_method'])->toBe('fetchAll');
-        $result = $next($data);
-        expect($result)->toBe(['test']);
-        return $result;
-    });
-
-    $pdoCastStatement->fetchAll();
-});
-
-it('should call execute with correct pipeline data', function () {
-    $stmtParentMock = new class {
-        public function execute(): bool
-        {
-            return true;
-        }
-    };
-
-    $pdoCastStatement = createPdoCastStatement($stmtParentMock, function (array $data, Closure $next) {
-        expect($data['stmt_method'])->toBe('execute');
-        return $next($data);
-    });
-
-    $result = $pdoCastStatement->execute(['foo' => 'bar']);
-    expect($result)->toBeTrue();
-});
-
 it('should allow pipeline to modify nextRowset() result', function () {
     $stmtParentMock = new class {
         public function nextRowset(): bool
@@ -79,3 +48,50 @@ it('should allow pipeline to modify nextRowset() result', function () {
     $result = $pdoCastStatement->nextRowset();
     expect($result)->toBeFalse();
 });
+
+dataset('stmtMethods', [
+    'fetchAll' => [
+        new class {
+            public function fetchAll(): array
+            {
+                return ['test'];
+            }
+        },
+        'fetchAll',
+        ['test'],
+    ],
+    'execute' => [
+        new class {
+            public function execute(): bool
+            {
+                return true;
+            }
+        },
+        'execute',
+        true,
+    ],
+    'nextRowset' => [
+        new class {
+            public function nextRowset(): bool
+            {
+                return true;
+            }
+        },
+        'nextRowset',
+        true,
+    ],
+]);
+
+it('should check stmt_method return', function (object $stmtParentMock, string $methodName, mixed $expected) {
+    $pdoCastStatement = createPdoCastStatement($stmtParentMock, function (array $data, Closure $next) use (
+        $methodName,
+        $expected
+    ) {
+        expect($data['stmt_method'])->toBe($methodName);
+        $result = $next($data);
+        expect($result)->toBe($expected);
+        return $result;
+    });
+
+    $pdoCastStatement->$methodName();
+})->with('stmtMethods');

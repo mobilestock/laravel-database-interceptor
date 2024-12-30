@@ -20,7 +20,7 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
         // run the SQL against the PDO connection. Then we can calculate the time it
         // took to execute and log the query SQL, bindings and time in our memory.
 
-        $bindings = array_map(function ($item) {
+        $bindings = array_map(function (mixed $item): mixed {
             return is_array($item) ? json_encode($item) : $item;
         }, $bindings);
 

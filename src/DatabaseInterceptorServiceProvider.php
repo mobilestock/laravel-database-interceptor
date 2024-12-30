@@ -13,6 +13,9 @@ use PDO;
 
 class DatabaseInterceptorServiceProvider extends DatabaseServiceProvider
 {
+    /**
+     * @codeCoverageIgnoreStart
+     */
     protected function registerConnectionServices(): void
     {
         $this->app->singleton('db.factory', function ($app) {
@@ -35,7 +38,9 @@ class DatabaseInterceptorServiceProvider extends DatabaseServiceProvider
             return new DatabaseTransactionsManager();
         });
     }
-
+    /**
+     * @codeCoverageIgnoreEnd
+     */
     public function boot(): void
     {
         Connection::resolverFor('mysql', function (

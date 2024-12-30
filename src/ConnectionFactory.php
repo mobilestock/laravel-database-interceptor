@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Database\Connectors\ConnectionFactory as BaseConnectionFactory;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Config;
-use Mobilestock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
+use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
 use PDO;
 
 class ConnectionFactory extends BaseConnectionFactory

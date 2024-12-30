@@ -3,7 +3,7 @@
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\App;
 use MobileStock\LaravelDatabaseInterceptor\ConnectionFactory;
-use Mobilestock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
+use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
 
 it('should test the integration with database for real connection in memory', function () {
     $factory = new ConnectionFactory(App::getFacadeRoot());

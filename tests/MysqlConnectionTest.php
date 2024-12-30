@@ -6,19 +6,20 @@ use Illuminate\Support\Facades\Event;
 use MobileStock\LaravelDatabaseInterceptor\MysqlConnection;
 
 beforeEach(function () {
-    $this->pdoMock = $this->createMock(PDO::class);
-    $this->stmtMock = $this->createMock(PDOStatement::class);
+    $this->pdoMock = Mockery::mock(PDO::class);
+    $this->stmtMock = Mockery::mock(PDOStatement::class);
+    $this->stmtMock->shouldReceive('setFetchMode');
 });
 
 it('should throw a Laravel error in case of syntax error', function () {
     $this->stmtMock
-        ->method('execute')
-        ->willThrowException(
+        ->shouldReceive('execute')
+        ->andThrow(
             new PDOException(
                 'SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \'INVALID SQL\' at line 1'
             )
         );
-    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
+    $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
 
     $connection = new MysqlConnection($this->pdoMock);
 
@@ -27,20 +28,19 @@ it('should throw a Laravel error in case of syntax error', function () {
 
 it('should throw a custom exception', function () {
     $customException = get_class(new class extends Exception {});
-    $this->stmtMock->method('execute')->willThrowException(new $customException());
-    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
+    $this->stmtMock->shouldReceive('execute')->andThrow(new $customException());
+    $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
 
     $connection = new MysqlConnection($this->pdoMock);
-
-    expect(fn() => $connection->select('INSERT INTO test (name) VALUES (?)', ['test']))->toThrow($customException);
+    expect(fn() => $connection->select("INSERT INTO test (name) VALUES ('Gean')"))->toThrow($customException);
 });
 
 it('should return the single column value using selectOneColumn', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
-    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
-    $this->stmtMock->method('fetchAll')->willReturn([1]);
-
+    $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
+    $this->stmtMock->shouldReceive('fetchAll')->andReturn([1]);
+    $this->stmtMock->shouldReceive('execute');
     $connection->setEventDispatcher(Event::getFacadeRoot());
     $result = $connection->selectOneColumn('SELECT * FROM test');
 
@@ -50,9 +50,9 @@ it('should return the single column value using selectOneColumn', function () {
 it('should return column values as a list when using selectColumns', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
-    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
-    $this->stmtMock->method('fetchAll')->willReturn([1, 2]);
-
+    $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
+    $this->stmtMock->shouldReceive('fetchAll')->andReturn([1, 2]);
+    $this->stmtMock->shouldReceive('execute');
     $connection->setEventDispatcher(Event::getFacadeRoot());
     $result = $connection->selectColumns('SELECT * FROM test');
 
@@ -60,11 +60,10 @@ it('should return column values as a list when using selectColumns', function ()
 });
 
 it('should throws a exception if inside a transaction when calling getLock', function () {
-    $pdoMock = $this->createMock(PDO::class);
-    $pdoMock->method('inTransaction')->willReturn(true);
-    DB::setPdo($pdoMock);
-
-    DB::getLock('test_identifier');
+    $conn = new MysqlConnection($this->pdoMock);
+    DB::shouldReceive('getPdo')->andReturn($this->pdoMock);
+    $this->pdoMock->shouldReceive('inTransaction')->andReturn(true);
+    $conn->getLock('test_identifier');
 })->throws(RuntimeException::class);
 
 it('should executes getLock normally if not in a transaction', function () {
@@ -79,4 +78,21 @@ it('should executes getLock normally if not in a transaction', function () {
     DB::getLock('test_identifier');
 
     expect(true)->toBeTrue();
+});
+
+it('should not change non-array bindings', function () {
+    $connection = new MysqlConnection(Mockery::mock(PDO::class));
+    $callback = function ($query, $bindings) {
+        return $bindings;
+    };
+
+    $bindings = ['key' => 'value'];
+
+    $reflection = new ReflectionClass($connection);
+    $method = $reflection->getMethod('runQueryCallback');
+    $method->setAccessible(true);
+
+    $result = $method->invokeArgs($connection, ['SELECT * FROM test', $bindings, $callback]);
+
+    expect($result['key'])->toBe('value');
 });

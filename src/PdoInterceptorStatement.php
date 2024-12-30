@@ -1,6 +1,6 @@
 <?php
 
-namespace Mobilestock\LaravelDatabaseInterceptor;
+namespace MobileStock\LaravelDatabaseInterceptor;
 
 use PDOStatement;
 use PDO;
