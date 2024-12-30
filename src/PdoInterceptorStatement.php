@@ -12,7 +12,7 @@ class PdoInterceptorStatement extends PDOStatement
     /**
      * @var string|object
      */
-    public $parent = parent::class;
+    protected $parent = parent::class;
 
     private function __construct(Pipeline $pipeline)
     {

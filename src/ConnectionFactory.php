@@ -11,10 +11,15 @@ use PDO;
 
 class ConnectionFactory extends BaseConnectionFactory
 {
+    /**
+     * @var string|object
+     */
+    private $parent = parent::class;
+
     protected function createPdoResolver(array $config): Closure
     {
         return function () use ($config): PDO {
-            $connection = parent::createPdoResolver($config)();
+            $connection = call_user_func([$this->parent, 'createPdoResolver'], $config)();
 
             $connection->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
                 PdoInterceptorStatement::class,

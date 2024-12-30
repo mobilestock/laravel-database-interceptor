@@ -66,19 +66,6 @@ it('should cast boolean correctly with custom prefix and nullable flag', functio
     expect($result)->toBe([['bool_isActive' => true], ['is_active' => false]]);
 });
 
-it('should check non associative array to be a list', function () {
-    $pdoData = [
-        'stmt_method' => 'fetchAll',
-        'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
-    ];
-
-    $next = fn() => [['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]];
-
-    $result = $this->middleware->handle($pdoData, $next);
-
-    expect($result[0])->toHaveKey('my_array');
-});
-
 dataset('commonData', [
     'should handle native type: LONG' => [
         'pdoData' => [
@@ -182,7 +169,6 @@ dataset('commonData', [
     'should correctly cast internal static prefixes with not_null flag' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'var_string',
                 'flags' => ['not_null'],
             ],
         ],
@@ -232,18 +218,16 @@ dataset('commonData', [
         'pdoData' => [
             'stmt_call' => fn() => [
                 'name' => 'field_json',
-                'native_type' => 'VAR_STRING',
                 'flags' => ['not_null'],
             ],
         ],
         'pdoResultMock' => [['field_json' => str_repeat('{"item":', 40) . '"value"' . str_repeat('}', 40)]],
         'expected' => [['field' => json_decode(str_repeat('{"item":', 40) . '"value"' . str_repeat('}', 40), true)]],
     ],
-    'should fails to decode JSON exceeding 803 depths layers limit' => [
+    'should fails to decode JSON exceeding 803 depths layers limit with static json suffix' => [
         'pdoData' => [
             'stmt_call' => fn() => [
                 'name' => 'field_json',
-                'native_type' => 'VAR_STRING',
                 'flags' => ['not_null'],
             ],
         ],
@@ -254,8 +238,15 @@ dataset('commonData', [
         'pdoData' => [
             'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
         ],
-        'pdoResultMock' => [[['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]]],
-        'expected' => [[['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]]],
+        'pdoResultMock' => [[[[['foo', null, 42], ['bar']]], [null]]],
+        'expected' => [[[[['foo', null, 42], ['bar']]], [null]]],
+    ],
+    'should check associative array without casting' => [
+        'pdoData' => [
+            'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
+        ],
+        'pdoResultMock' => [['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]],
+        'expected' => [['my_array' => [['foo', null, 42], ['bar']]], ['my_array' => null]],
     ],
     'should cast correctly with statics internal cast configuration a deep json object' => [
         'pdoData' => [
