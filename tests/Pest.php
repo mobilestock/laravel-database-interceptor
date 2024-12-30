@@ -5,14 +5,9 @@ use Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
 
-class PdoInterceptorStatementWithParent extends PdoInterceptorStatement
+function getStmt(...$args): PdoInterceptorStatement
 {
-    public $parent;
-}
-
-function getStmt(...$args): PdoInterceptorStatementWithParent
-{
-    $reflectionClass = new ReflectionClass(PdoInterceptorStatementWithParent::class);
+    $reflectionClass = new ReflectionClass(PdoInterceptorStatement::class);
     $method = $reflectionClass->getConstructor();
     $method->setAccessible(true);
     $method->invoke($stmt = $reflectionClass->newInstanceWithoutConstructor(), ...$args);
