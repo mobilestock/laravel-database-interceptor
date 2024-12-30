@@ -80,13 +80,16 @@ it('should executes getLock normally if not in a transaction', function () {
     expect(true)->toBeTrue();
 });
 
-it('should not change non-array bindings', function () {
+dataset('bindings', [
+    'should change array to json string' => ['bindings' => ['key' => [1, 2, 3]], 'expected' => ['key' => '[1,2,3]']],
+    'should not change provide string' => ['bindings' => ['value'], 'expected' => ['value']],
+]);
+
+it('intend to resolve', function (array $bindings, array $expected) {
     $connection = new MysqlConnection(Mockery::mock(PDO::class));
     $callback = function ($query, $bindings) {
         return $bindings;
     };
-
-    $bindings = ['key' => 'value'];
 
     $reflection = new ReflectionClass($connection);
     $method = $reflection->getMethod('runQueryCallback');
@@ -94,5 +97,5 @@ it('should not change non-array bindings', function () {
 
     $result = $method->invokeArgs($connection, ['SELECT * FROM test', $bindings, $callback]);
 
-    expect($result['key'])->toBe('value');
-});
+    expect($result)->toBe($expected);
+})->with('bindings');
