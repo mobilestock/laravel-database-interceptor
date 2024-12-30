@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Event;
 use MobileStock\LaravelDatabaseInterceptor\MysqlConnection;
@@ -34,7 +35,7 @@ it('should throw a custom exception', function () {
     expect(fn() => $connection->select('INSERT INTO test (name) VALUES (?)', ['test']))->toThrow($customException);
 });
 
-it('should tests selectOneColumn', function () {
+it('should return the single column value using selectOneColumn', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
     $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
@@ -46,7 +47,7 @@ it('should tests selectOneColumn', function () {
     expect($result)->toBe(1);
 });
 
-it('should tests selectColumns', function () {
+it('should return column values as a list when using selectColumns', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
     $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
@@ -56,4 +57,26 @@ it('should tests selectColumns', function () {
     $result = $connection->selectColumns('SELECT * FROM test');
 
     expect($result)->toBe([1, 2]);
+});
+
+it('should throws a exception if inside a transaction when calling getLock', function () {
+    $pdoMock = $this->createMock(PDO::class);
+    $pdoMock->method('inTransaction')->willReturn(true);
+    DB::setPdo($pdoMock);
+
+    DB::getLock('test_identifier');
+})->throws(RuntimeException::class);
+
+it('should executes getLock normally if not in a transaction', function () {
+    $connectionMock = $this->createPartialMock(MysqlConnection::class, ['selectOneColumn']);
+    $connectionMock->__construct($this->createMock(PDO::class));
+    $connectionMock->method('selectOneColumn')->willReturn(1);
+
+    $databaseManagerMock = $this->createPartialMock(DatabaseManager::class, ['connection']);
+    $databaseManagerMock->method('connection')->willReturn($connectionMock);
+    DB::swap($databaseManagerMock);
+
+    DB::getLock('test_identifier');
+
+    expect(true)->toBeTrue();
 });
