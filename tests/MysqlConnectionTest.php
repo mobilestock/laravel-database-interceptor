@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Event;
 use MobileStock\LaravelDatabaseInterceptor\MysqlConnection;
 
 beforeEach(function () {
@@ -31,4 +32,28 @@ it('should throw a custom exception', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
     expect(fn() => $connection->select('INSERT INTO test (name) VALUES (?)', ['test']))->toThrow($customException);
+});
+
+it('should tests selectOneColumn', function () {
+    $connection = new MysqlConnection($this->pdoMock);
+
+    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
+    $this->stmtMock->method('fetchAll')->willReturn([1]);
+
+    $connection->setEventDispatcher(Event::getFacadeRoot());
+    $result = $connection->selectOneColumn('SELECT * FROM test');
+
+    expect($result)->toBe(1);
+});
+
+it('should tests selectColumns', function () {
+    $connection = new MysqlConnection($this->pdoMock);
+
+    $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
+    $this->stmtMock->method('fetchAll')->willReturn([1, 2]);
+
+    $connection->setEventDispatcher(Event::getFacadeRoot());
+    $result = $connection->selectColumns('SELECT * FROM test');
+
+    expect($result)->toBe([1, 2]);
 });
