@@ -11,7 +11,11 @@
   ],
   "autoload": {
     "psr-4": {
-      "MobileStock\\LaravelDatabaseInterceptor\\": "src/",
+      "MobileStock\\LaravelDatabaseInterceptor\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Tests\\": "tests/"
     }
   },
