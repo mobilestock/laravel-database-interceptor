@@ -8,17 +8,16 @@ function createPdoCastStatement(object $stmtParentMock, Closure $through): PdoIn
     $pipeline = new Pipeline();
     $pipeline->through($through);
 
-    $reflectionClass = new ReflectionClass(PdoInterceptorStatement::class);
-    $method = $reflectionClass->getConstructor();
-    $method->setAccessible(true);
-    $method->invoke($pdoCastStatement = $reflectionClass->newInstanceWithoutConstructor(), $pipeline);
+    $pdoInterceptorStmtReflection = new ReflectionClass(PdoInterceptorStatement::class);
+    $constructor = $pdoInterceptorStmtReflection->getConstructor();
+    $constructor->setAccessible(true);
+    $pdoCastStatementInstance = $pdoInterceptorStmtReflection->newInstanceWithoutConstructor();
+    $constructor->invoke($pdoCastStatementInstance, $pipeline);
 
-    $reflectionClass = new ReflectionClass($pdoCastStatement);
-    $property = $reflectionClass->getProperty('parent');
+    $property = $pdoInterceptorStmtReflection->getProperty('parent');
     $property->setAccessible(true);
-    $property->setValue($pdoCastStatement, $stmtParentMock);
-
-    return $pdoCastStatement;
+    $property->setValue($pdoCastStatementInstance, $stmtParentMock);
+    return $pdoCastStatementInstance;
 }
 
 it('should execute the pipeline', function () {
