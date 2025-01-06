@@ -234,14 +234,14 @@ dataset('commonData', [
         'pdoResultMock' => [['field_json' => str_repeat('{"item":', 801) . '"value"' . str_repeat('}', 801) . '}']],
         'expected' => [['field' => str_repeat('{"item":', 801) . '"value"' . str_repeat('}', 801) . '}']],
     ],
-    'should check non associative array to be a list' => [
+    'should check non associative array to be a list with nullable values' => [
         'pdoData' => [
             'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
         ],
         'pdoResultMock' => [[[[['foo', null, 42], ['bar']]], [null]]],
         'expected' => [[[[['foo', null, 42], ['bar']]], [null]]],
     ],
-    'should check associative array without casting' => [
+    'should check associative array without casting with nullable values' => [
         'pdoData' => [
             'stmt_call' => fn() => ['native_type' => 'STRING', 'flags' => []],
         ],
