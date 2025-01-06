@@ -25,7 +25,7 @@ class CastWithDatabaseColumns
             $column = ($this->stmtCall)('getColumnMeta', 0)['name'];
 
             foreach ($result as &$item) {
-                [$ignore, $item] = $this->castValue(0, $item, $column);
+                [, $item] = $this->castValue(0, $item, $column);
             }
         } else {
             foreach ($result as &$data) {
