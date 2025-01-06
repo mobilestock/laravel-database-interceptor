@@ -82,14 +82,12 @@ it('should executes getLock normally if not in a transaction', function () {
 
 dataset('bindings', [
     'should change array to json string' => ['bindings' => ['key' => [1, 2, 3]], 'expected' => ['key' => '[1,2,3]']],
-    'should not change provide string' => ['bindings' => ['value'], 'expected' => ['value']],
+    'should not change provided string' => ['bindings' => ['value'], 'expected' => ['value']],
 ]);
 
 it('intend to resolve', function (array $bindings, array $expected) {
     $connection = new MysqlConnection(Mockery::mock(PDO::class));
-    $callback = function ($query, $bindings) {
-        return $bindings;
-    };
+    $callback = fn($query, $bindings) => $bindings;
 
     $reflection = new ReflectionClass($connection);
     $method = $reflection->getMethod('runQueryCallback');
