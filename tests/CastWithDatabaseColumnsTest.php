@@ -70,56 +70,56 @@ dataset('commonData', [
     'should handle native type: LONG' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'int_id',
+                'name' => 'id',
                 'native_type' => 'LONG',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['int_id' => '42']],
+        'pdoResultMock' => [['id' => '42']],
         'expected' => [['id' => 42]],
     ],
     'should handle native type: LONGLONG' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'int_id',
+                'name' => 'id',
                 'native_type' => 'LONGLONG',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['int_id' => '42']],
+        'pdoResultMock' => [['id' => '42']],
         'expected' => [['id' => 42]],
     ],
     'should handle native type: SHORT' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'int_id',
+                'name' => 'id',
                 'native_type' => 'SHORT',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['int_id' => '42']],
+        'pdoResultMock' => [['id' => '42']],
         'expected' => [['id' => 42]],
     ],
     'should handle native type: TINY' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'int_id',
+                'name' => 'id',
                 'native_type' => 'TINY',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['int_id' => '42']],
+        'pdoResultMock' => [['id' => '42']],
         'expected' => [['id' => 42]],
     ],
     'should handle native type: INT24' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'int_id',
+                'name' => 'id',
                 'native_type' => 'INT24',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['int_id' => '42']],
+        'pdoResultMock' => [['id' => '42']],
         'expected' => [['id' => 42]],
     ],
     'should handle native type: YEAR' => [
@@ -136,34 +136,34 @@ dataset('commonData', [
     'should handle native type: FLOAT' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'float_value',
+                'name' => 'value',
                 'native_type' => 'FLOAT',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['float_value' => 3.14]],
+        'pdoResultMock' => [['value' => 3.14]],
         'expected' => [['value' => 3.14]],
     ],
     'should handle native type: DOUBLE' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'float_value',
+                'name' => 'value',
                 'native_type' => 'DOUBLE',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['float_value' => 3.14]],
+        'pdoResultMock' => [['value' => 3.14]],
         'expected' => [['value' => 3.14]],
     ],
     'should handle native type: NEWDECIMAL' => [
         'pdoData' => [
             'stmt_call' => fn() => [
-                'name' => 'float_value',
+                'name' => 'value',
                 'native_type' => 'NEWDECIMAL',
                 'flags' => ['not_null'],
             ],
         ],
-        'pdoResultMock' => [['float_value' => 3.14]],
+        'pdoResultMock' => [['value' => 3.14]],
         'expected' => [['value' => 3.14]],
     ],
     'should correctly cast internal static prefixes with not_null flag' => [
