@@ -4,6 +4,7 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\App;
 use MobileStock\LaravelDatabaseInterceptor\ConnectionFactory;
 use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
+use Closure;
 
 it('should test the integration with database for real connection in memory', function () {
     $factory = new ConnectionFactory(App::getFacadeRoot());
@@ -37,7 +38,7 @@ it('should test the integration with database for real connection in memory', fu
 
     $resolver = $method->invoke($factory, []);
 
-    expect($resolver)->toBeInstanceOf(\Closure::class);
+    expect($resolver)->toBeInstanceOf(Closure::class);
 
     $pdo = $resolver();
     expect($pdo)->toBeInstanceOf(PDO::class);

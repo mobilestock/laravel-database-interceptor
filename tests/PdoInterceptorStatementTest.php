@@ -25,7 +25,6 @@ it('should execute the pipeline', function () {
     $stmtParentMock = new class {};
 
     $pdoCastStatement = createPdoCastStatement($stmtParentMock, function () {
-        expect(1)->toBe(1);
         return ['test'];
     });
 
