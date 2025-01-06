@@ -35,26 +35,26 @@ it('should throw a custom exception', function () {
     expect(fn() => $connection->select("INSERT INTO test (name) VALUES ('Gean')"))->toThrow($customException);
 });
 
-it('should return the single column value using selectOneColumn', function () {
+it('should return the single column value using selectOneFirstColumn', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
     $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
     $this->stmtMock->shouldReceive('fetchAll')->andReturn([1]);
     $this->stmtMock->shouldReceive('execute');
     $connection->setEventDispatcher(Event::getFacadeRoot());
-    $result = $connection->selectOneColumn('SELECT * FROM test');
+    $result = $connection->selectOneFirstColumn('SELECT * FROM test');
 
     expect($result)->toBe(1);
 });
 
-it('should return column values as a list when using selectColumns', function () {
+it('should return column values as a list when using selectFirstColumn', function () {
     $connection = new MysqlConnection($this->pdoMock);
 
     $this->pdoMock->shouldReceive('prepare')->andReturn($this->stmtMock);
     $this->stmtMock->shouldReceive('fetchAll')->andReturn([1, 2]);
     $this->stmtMock->shouldReceive('execute');
     $connection->setEventDispatcher(Event::getFacadeRoot());
-    $result = $connection->selectColumns('SELECT * FROM test');
+    $result = $connection->selectFirstColumn('SELECT * FROM test');
 
     expect($result)->toBe([1, 2]);
 });
@@ -67,9 +67,9 @@ it('should throws a exception if inside a transaction when calling getLock', fun
 })->throws(RuntimeException::class);
 
 it('should executes getLock normally if not in a transaction', function () {
-    $connectionMock = $this->createPartialMock(MysqlConnection::class, ['selectOneColumn']);
+    $connectionMock = $this->createPartialMock(MysqlConnection::class, ['selectOneFirstColumn']);
     $connectionMock->__construct($this->createMock(PDO::class));
-    $connectionMock->method('selectOneColumn')->willReturn(1);
+    $connectionMock->method('selectOneFirstColumn')->willReturn(1);
 
     $databaseManagerMock = $this->createPartialMock(DatabaseManager::class, ['connection']);
     $databaseManagerMock->method('connection')->willReturn($connectionMock);

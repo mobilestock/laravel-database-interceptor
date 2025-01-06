@@ -40,14 +40,14 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
         }
     }
 
-    public function selectOneColumn($query, $bindings = [], $useReadPdo = true)
+    public function selectOneFirstColumn($query, $bindings = [], $useReadPdo = true)
     {
         $this->changePdoFetchModeToFetchColumn();
 
         return self::selectOne($query, $bindings, $useReadPdo);
     }
 
-    public function selectColumns($query, $bindings = [], $useReadPdo = true): array
+    public function selectFirstColumn($query, $bindings = [], $useReadPdo = true): array
     {
         $this->changePdoFetchModeToFetchColumn();
 
@@ -74,7 +74,7 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
         $route = "{$layer['file']}::{$layer['class']}{$layer['type']}{$layer['function']}({$layer['args']})->getLock({$layer['identifier']})";
         $hashBacktrace = sha1($route);
 
-        $this->selectOneColumn('SELECT GET_LOCK(:lock_id, 99999);', ['lock_id' => $hashBacktrace]);
+        $this->selectOneFirstColumn('SELECT GET_LOCK(:lock_id, 99999);', ['lock_id' => $hashBacktrace]);
     }
 
     protected function changePdoFetchModeToFetchColumn(): void
