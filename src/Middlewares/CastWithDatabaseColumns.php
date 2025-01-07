@@ -146,7 +146,7 @@ class CastWithDatabaseColumns
         return $result;
     }
 
-    public function castAssoc(array $data, ?string $columnBase): array
+    public function castAssoc(mixed $data, ?string $columnBase): mixed
     {
         if (!$this->isAssociative($data)) {
             return $data;
