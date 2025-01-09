@@ -3,6 +3,7 @@
 namespace MobileStock\LaravelDatabaseInterceptor\Middlewares;
 
 use Closure;
+use stdClass;
 
 class CastWithDatabaseColumns
 {
@@ -38,6 +39,10 @@ class CastWithDatabaseColumns
 
     protected function castValue(int $key, $value, string $columnName): array
     {
+        if ($value instanceof stdClass) {
+            return [$columnName, $value];
+        }
+
         if (isset($this->columnCache[$columnName])) {
             [$columnName, $castFunction] = $this->columnCache[$columnName];
             $value = $castFunction($value);
