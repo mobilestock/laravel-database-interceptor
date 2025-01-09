@@ -66,6 +66,20 @@ it('should cast boolean correctly with custom prefix and nullable flag', functio
     expect($result)->toBe([['bool_isActive' => true], ['is_active' => false]]);
 });
 
+it('should not cast a stcClass object', function () {
+    $pdoData = [
+        'stmt_method' => 'fetchAll',
+        'stmt_call' => fn() => ['name' => 'field_json'],
+    ];
+
+    $stdClass = new stdClass();
+    $next = fn() => [$stdClass];
+
+    $result = $this->middleware->handle($pdoData, $next);
+
+    expect($result)->toBe([$stdClass]);
+});
+
 dataset('commonData', [
     'should handle native type: LONG' => [
         'pdoData' => [
