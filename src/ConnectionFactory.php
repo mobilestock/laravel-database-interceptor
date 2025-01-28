@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Database\Connectors\ConnectionFactory as BaseConnectionFactory;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Config;
-use MobileStock\LaravelDatabaseInterceptor\PdoInterceptorStatement;
 use PDO;
 
 class ConnectionFactory extends BaseConnectionFactory
@@ -25,6 +24,8 @@ class ConnectionFactory extends BaseConnectionFactory
                 PdoInterceptorStatement::class,
                 [app(Pipeline::class)->through(Config::get('pdo-interceptor.middlewares'))],
             ]);
+
+            $connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
             return $connection;
         };

@@ -80,7 +80,14 @@ class MysqlConnection extends \Illuminate\Database\MySqlConnection
     protected function changePdoFetchModeToFetchColumn(): void
     {
         $listener = function (StatementPrepared $event) use (&$listener): bool {
-            $this->getEventDispatcher()->forget(StatementPrepared::class, $listener);
+            Closure::bind(
+                function () {
+                    /** @var object $this */
+                    array_pop($this->listeners[StatementPrepared::class]);
+                },
+                $this->getEventDispatcher(),
+                get_class($this->getEventDispatcher())
+            )();
             return $event->statement->setFetchMode(PDO::FETCH_COLUMN, 0) ?? false;
         };
 
