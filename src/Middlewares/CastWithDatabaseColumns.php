@@ -3,7 +3,6 @@
 namespace MobileStock\LaravelDatabaseInterceptor\Middlewares;
 
 use Closure;
-use stdClass;
 
 class CastWithDatabaseColumns
 {
@@ -22,7 +21,7 @@ class CastWithDatabaseColumns
         $result = $next($pdoData);
         $this->stmtCall = $pdoData['stmt_call'];
 
-        if (array_is_list($result) && array_key_exists(0, $result) && !is_array($result[0])) {
+        if (array_is_list($result) && array_key_exists(0, $result) && (is_scalar($result[0]) || is_null($result[0]))) {
             $column = ($this->stmtCall)('getColumnMeta', 0)['name'];
 
             foreach ($result as &$item) {
@@ -39,10 +38,6 @@ class CastWithDatabaseColumns
 
     protected function castValue(int $key, $value, string $columnName): array
     {
-        if ($value instanceof stdClass) {
-            return [$columnName, $value];
-        }
-
         if (isset($this->columnCache[$columnName])) {
             [$columnName, $castFunction] = $this->columnCache[$columnName];
             $value = $castFunction($value);
