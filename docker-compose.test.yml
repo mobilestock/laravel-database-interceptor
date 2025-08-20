@@ -1,0 +1,8 @@
+services:
+  laravel-database-interceptor:
+    extends:
+      file: docker-compose.base.yml
+      service: pest-base
+    volumes:
+      - './packages/laravel-database-interceptor:/laravel-database-interceptor'
+    working_dir: /laravel-database-interceptor
